@@ -1,0 +1,134 @@
+Diving Deeper into TensorFlow
+--
+
+This will be useful when you need to write custom loss functions, custom metrics, layers, models, initializers, regularizers, weight constraints and more.
+
+You may need to even fully control the training loop itself, for example to apply special transformations or constraints to the gradients, or  to use multiple optimizers for different parts of the network.
+
+
+Using Tensorflow like Numpy
+-----------
+
+A tensor is usually a multidimensional array, but it can also hold a scalar.
+
+
+Tensors and Operations
+----
+
+You can easily create a tensor, using tf.constant().
+
+Tensors and Numpy
+----
+
+Tensors play nice with Numpy: you can create a tensor from a NumPy array, and vice versa, and you can even apply TensorFlow operations to Numpy arrays and Numpy operations to tensors:
+
+
+Type Conversions
+---
+Types conversions can significanly hurt performance, and they can easily go unnoticed when they are done automatically.
+
+To avoid this, Tensorflow does not perform any type conversions automatically: it just raises an exception if you try to execute an operations on tensors with incopatible types.
+
+Variables
+---
+A tf.variable acts much like a constant tensor: you can perfrom the same operations with it, it plays nicely with Numpy as well, and it is just as picky with types.
+
+
+But it can also be modified in place using the assign() method or assign_sub() which increment or decrement the varibale by the given value.
+
+
+Other data structures
+---
+Sparse tensors(tf.SparseTensor): efficiently represent tensors containing mostly 0s.
+
+Tensor arrays (tf.TensorArray):- are list of tensors which have a fized size by default but can optionally be made dynamic.
+
+
+Ragged tensors (tf.RaggedTensor) :- represent static lists of tensors, where every tensor has the same shape and data type
+
+String tensors (t.string):- represent byte string
+
+Sets :- represented as normal tensors (tf.sets)
+
+Queues (tf.queue)
+
+
+Customizing Models and Training Algorithms
+---
+
+Custom Loss Functions
+--
+
+For better performance, you should use a vectorized implementation, as in this example.
+Moreover, if you want to benefit from TensorFlow's graph features, you shoulf use only TensorFlow operations.
+
+It is also prefereable to return a tensor containing one loss per instance, rather than returning the mean loss
+
+
+Saving and loading Models that contain CustommCOmponents
+---
+
+Saving a models containing a custom loss function actually works fine, as Keras just saves the name of the function.
+
+However, whenever you load it, you need to provide a dictionary that maps the functionname to the actual funtion.
+
+More generally, when you load a model containing custom objects, you need the names to the objects:
+
+
+Custom Activation Functions, Initializers, Regularizers, and Constraints
+----
+
+Most keras functionalities, such as loses, regularizers, contraints, initialzers, metrics, activation functions, layers and even full models can be customized in very much the same way.
+
+Most of the time, you will just need to write a simple function, with the appropriate inputs and outputs.
+
+
+Custom Metrics
+--
+
+Losses and metrics are conceptually not the same thing: losses are used by Gradient Descent to train a model, so they must be differentiable and their gradients should not be 0 everywhere.
+
+Plus, it's okay if they are not easily interpretable by humans.
+In contrast, metrics are used to evaluate a model, they must be more easily innterpretable, and can be non-differetiable or have 0 gradients everywhere.
+
+When you define a metric using a simple function, Keras automatically calls it for each batch, and it keeps track of the mean during each epoch, just like we did manuyally.
+
+
+Custom Layers
+--
+
+You may occasionally want to build an architecture that contains an exotic layer for which TensorFlow does not provide a default implementation.
+
+In this case, you will need to create a custom layer.
+
+Or sometimes you may simple need to build a very repetitive architucture, contating identical blocks of layers repeated many times, and it would be convinient to treat each block of layers as a single layer.
+
+
+
+Custom Models
+--
+
+Its actually straightforward, juts subclass the keras.models.Model class, create layers and variables in the constructor, and implement the call() method to do whatever you want the model to do.
+
+
+
+Losses and Metrics Based on Model Internals
+----
+
+TO define a custom loss based on model internals, just compute it based on any part of the model you want, then pass the result to teh add_loss() methods.
+
+
+Computing Gradients Using Autodiff
+--
+
+
+Custom training Loops
+---
+
+Unless you really need the extra flexibility, you should prefer using the fit() method rather than implementing your own training loop, especially if you work in ateam.
+
+
+Tensorflow functions and Graphs
+Tensorflow optimizes teh computation graph, pruning unused nodes, simplifying expressions and more.
+
+Once the optimized graph is ready, the TF function efficiently executes the operations in the graph, in the appropriate order. 
